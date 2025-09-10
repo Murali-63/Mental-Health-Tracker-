@@ -1,0 +1,3970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Wellness Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6a7de2;
+            --secondary: #8fa0ff;
+            --accent: #ff7aa8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #4caf50;
+            --info: #42a5f5;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --calm: #6dc4c4;
+            --energetic: #ffb74d;
+            --purple: #9c6ade;
+            --pink: #ff7eb3;
+            --gradient-start: #6a7de2;
+            --gradient-end: #8fa0ff;
+            --card-shadow: 0 10px 20px rgba(106, 125, 226, 0.15);
+            --rainbow-gradient: linear-gradient(135deg, #ff7aa8, #ff9e6d, #ffcc5c, #9c6ade, #6a7de2, #6dc4c4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f5 100%);
+            color: var(--dark);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Login Page */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--rainbow-gradient);
+            animation: gradientBG 15s ease infinite;
+            background-size: 400% 400%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.1' d='M0,128L48,117.3C96,107,192,85,288,112C384,139,480,213,576,218.7C672,224,768,160,864,138.7C960,117,1056,139,1152,149.3C1248,160,1344,160,1392,160L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+        }
+
+        .login-box {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.8s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .login-box h1 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            animation: pulse 2s infinite;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group label i {
+            margin-right: 8px;
+            color: var(--primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(106, 125, 226, 0.2);
+            background: white;
+        }
+
+        .password-recovery {
+            display: block;
+            text-align: right;
+            margin-top: -0.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--info);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .password-recovery:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--rainbow-gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(106, 125, 226, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(106, 125, 226, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Dashboard */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--rainbow-gradient);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            overflow-y: auto;
+            animation: gradientBG 15s ease infinite;
+            background-size: 400% 400%;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        .sidebar-header h2::before {
+            content: "🧠";
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 1rem;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 14px 1.2rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .sidebar-menu a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background-color: white;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+            transform-origin: bottom;
+        }
+
+        .sidebar-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .sidebar-menu a:hover::before {
+            transform: scaleY(1);
+        }
+
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-menu a.active::before {
+            transform: scaleY(1);
+        }
+
+        .sidebar-menu i {
+            margin-right: 12px;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2.5rem;
+            background-color: #f5f7fa;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            animation: slideIn 0.5s ease;
+        }
+
+        .header h2 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .header h2::before {
+            content: "👋";
+            margin-right: 12px;
+            font-size: 2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f7fa, #e4e8f5);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 12px;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-section {
+            background: var(--rainbow-gradient);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-section::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+        }
+
+        .welcome-section h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-section p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            text-align: center;
+            border-left: 5px solid var(--primary);
+            animation: fadeIn 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:nth-child(2) {
+            border-left-color: var(--purple);
+        }
+
+        .stat-card:nth-child(3) {
+            border-left-color: var(--pink);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(106, 125, 226, 0.2);
+        }
+
+        .stat-card h3 {
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .view-details-btn {
+            display: inline-block;
+            margin-top: 1.2rem;
+            padding: 10px 20px;
+            background: var(--rainbow-gradient);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(106, 125, 226, 0.3);
+        }
+
+        .view-details-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(106, 125, 226, 0.4);
+        }
+
+        /* Patient List Section */
+       .patients-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 15px 30px rgba(106, 125, 226, 0.15);
+    margin-bottom: 2.5rem;
+    animation: fadeIn 0.6s ease;
+    border: 1px solid rgba(106, 125, 226, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.patients-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: var(--rainbow-gradient);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+
+.patients-container h3 {
+    background:white;
+    align-items: center;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(106, 125, 226, 0.15);
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+}
+
+.patients-container h3 i {
+    margin-right: 12px;
+    font-size: 1.8rem;
+}
+
+.patient-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    background: rgba(106, 125, 226, 0.05);
+    padding: 1.5rem;
+    border-radius: 15px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+    border-radius: 12px;
+    padding: 0.8rem 1.5rem;
+    width: 350px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.search-box:focus-within {
+    box-shadow: 0 6px 20px rgba(106, 125, 226, 0.25);
+    background: white;
+    border-color: rgba(106, 125, 226, 0.3);
+    transform: translateY(-2px);
+}
+
+.search-box i {
+    color: var(--primary);
+    font-size: 1.2rem;
+    margin-right: 12px;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    padding: 0.6rem;
+    width: 100%;
+    outline: none;
+    font-size: 1.05rem;
+    color: var(--dark);
+}
+
+.search-box input::placeholder {
+    color: #a0aec0;
+}
+
+.add-patient-btn {
+    background: var(--rainbow-gradient);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.add-patient-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: 0.5s;
+}
+
+.add-patient-btn:hover::before {
+    left: 100%;
+}
+
+.add-patient-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(76, 175, 80, 0.5);
+}
+
+.add-patient-btn:active {
+    transform: translateY(-1px);
+}
+
+.add-patient-btn i {
+    margin-right: 12px;
+    font-size: 1.2rem;
+}
+
+        /* Patient Card Styles */
+        .patient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .patient-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .patient-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(106, 125, 226, 0.2);
+        }
+
+        .patient-header {
+            background: var(--rainbow-gradient);
+            color: white;
+            padding: 2rem;
+            position: relative;
+            text-align: center;
+        }
+
+        .patient-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid white;
+            object-fit: cover;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .patient-name {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            ;
+        }
+
+        .patient-age {
+            font-size: 1rem;
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .patient-body {
+            padding: 2rem;
+        }
+
+        .patient-detail {
+            display: flex;
+            margin-bottom: 1.2rem;
+            align-items: flex-start;
+        }
+
+        .patient-detail-label {
+            font-weight: 600;
+            min-width: 100px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .patient-detail-label i {
+            margin-right: 8px;
+            color: var(--primary);
+        }
+
+        .patient-detail-value {
+            color: #666;
+            flex: 1;
+        }
+
+        .patient-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 1.2rem 2rem;
+            border-top: 1px solid #f0f0f0;
+            background: #f8fafc;
+        }
+
+        .patient-action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .patient-action-btn i {
+            margin-right: 6px;
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, var(--info), #2196f3);
+            color: white;
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, var(--warning), #f57c00);
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, var(--danger), #d32f2f);
+            color: white;
+            box-shadow: 0 4px 10px rgba(244, 67, 54, 0.3);
+        }
+
+        .patient-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            animation: modalFadeIn 0.4s ease;
+            position: relative;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            padding: 1.8rem 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-header h3 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            background: #f0f0f0;
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            background: #f8fafc;
+            border-radius: 0 0 20px 20px;
+        }
+
+        /* Form Elements */
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .form-container h3 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -1rem;
+        }
+
+        .form-col {
+            flex: 1;
+            min-width: 250px;
+            padding: 0 1rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .form-group-dashboard label {
+            display: block;
+            margin-bottom: 0.6rem;
+            color: var(--dark);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group-dashboard label i {
+            margin-right: 8px;
+            color: var(--primary);
+        }
+
+        .form-group-dashboard input,
+        .form-group-dashboard select,
+        .form-group-dashboard textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-group-dashboard input:focus,
+        .form-group-dashboard select:focus,
+        .form-group-dashboard textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(106, 125, 226, 0.2);
+            background: white;
+        }
+
+        .submit-btn {
+            background: var(--rainbow-gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(106, 125, 226, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(106, 125, 226, 0.4);
+        }
+
+        .cancel-btn {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+        }
+
+        .cancel-btn:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        /* Patient Tabs */
+        .patient-tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .patient-tab {
+            padding: 1rem 1.8rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-weight: 600;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+        .patient-tab i {
+            margin-right: 8px;
+        }
+
+        .patient-tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+            background: rgba(106, 125, 226, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Mood Tracking Section */
+        .mood-tracker {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .mood-tracker h3 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .mood-slider-container {
+            margin-bottom: 2rem;
+        }
+
+        .mood-slider {
+            width: 100%;
+            height: 18px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, var(--danger), var(--warning), var(--success));
+            outline: none;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        .mood-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 3px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .mood-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .mood-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .mood-labels span {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .mood-emoji {
+            text-align: center;
+            font-size: 4rem;
+            margin: 1.5rem 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Journal Entry Section */
+        .journal-entry {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .journal-entry h3 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .journal-textarea {
+            width: 100%;
+            min-height: 250px;
+            padding: 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+            margin-bottom: 1.8rem;
+            background: #f8fafc;
+        }
+
+        .journal-textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(106, 125, 226, 0.2);
+            background: white;
+        }
+
+        /* Activities Section */
+        .activities-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .activities-container h3 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .activity-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        .activity-card.selected {
+            border-color: var(--primary);
+            background: rgba(106, 125, 226, 0.1);
+            box-shadow: 0 8px 20px rgba(106, 125, 226, 0.15);
+        }
+
+        .activity-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .activity-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .activity-duration {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Food Tracking Section */
+        .food-tracker {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .food-tracker h3 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        /* History Section */
+        .history-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .history-container h3 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .history-filters {
+            display: flex;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background-color: white;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(106, 125, 226, 0.2);
+        }
+
+        .custom-date-filter {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #f8fafc;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .custom-date-filter input {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            width: 130px;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: var(--rainbow-gradient);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, var(--info), #2196f3);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, var(--warning), #f57c00);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, var(--danger), #d32f2f);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover, .edit-btn:hover, .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .chart-container h3 {
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .chart-placeholder {
+            height: 350px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-style: italic;
+            border: 2px dashed #e2e8f0;
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 22px;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 280px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .notification.success {
+            background: rgba(76, 175, 80, 0.9);
+        }
+
+        .notification.info {
+            background: rgba(33, 150, 243, 0.9);
+        }
+
+        .notification.warning {
+            background: rgba(255, 152, 0, 0.9);
+        }
+
+        .notification.danger {
+            background: rgba(244, 67, 54, 0.9);
+        }
+
+        .notification button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            margin-left: 15px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .notification button:hover {
+            opacity: 1;
+        }
+
+        /* Download Button */
+        .download-btn {
+            background: linear-gradient(135deg, var(--success), #3d8b40);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .download-btn i {
+            margin-right: 10px;
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(135deg, #3d8b40, #2e6b31);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        /* Profile Section Enhancements */
+        .profile-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .profile-image {
+            position: relative;
+            margin-right: 2rem;
+        }
+
+        .profile-image img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .upload-btn {
+            background: var(--rainbow-gradient);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(106, 125, 226, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(106, 125, 226, 0.4);
+        }
+
+        .profile-info h4 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-info p {
+            color: #666;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-info p i {
+            margin-right: 8px;
+            color: var(--primary);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .profile-stat {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .profile-stat .number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--rainbow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-stat .label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* Patient Image Preview */
+        .patient-image-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            margin: 0 auto 20px;
+            display: block;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* History Cards View */
+        .history-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+
+        .history-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-card.mood {
+            border-left-color: var(--info);
+        }
+
+        .history-card.journal {
+            border-left-color: var(--warning);
+        }
+
+        .history-card.activities {
+            border-left-color: var(--success);
+        }
+
+        .history-card.food {
+            border-left-color: var(--pink);
+        }
+
+        .history-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .history-card-type {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .history-card-type i {
+            margin-right: 8px;
+        }
+
+        .history-card-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .history-card-patient {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .history-card-content {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .history-card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 1.5rem;
+            width: fit-content;
+        }
+
+        .view-toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .view-toggle-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar-header h2 span,
+            .sidebar-menu a span {
+                display: none;
+            }
+            
+            .sidebar-menu a {
+                justify-content: center;
+                padding: 14px 0;
+            }
+            
+            .sidebar-menu i {
+                margin-right: 0;
+                font-size: 1.4rem;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+                padding: 2rem;
+            }
+            
+            .patient-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .activity-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-image {
+                margin-right: 0;
+                margin-bottom: 1.5rem;
+            }
+
+            .history-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .login-box {
+                width: 90%;
+                padding: 2rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-col {
+                padding: 0;
+            }
+            
+            .history-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .custom-date-filter {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .patient-footer {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            
+            .patient-action-btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+                justify-content: center;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            
+            .user-info {
+                align-self: center;
+            }
+            
+            .modal {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <h1>Mental Wellness Tracker</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginId"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="loginId" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+                <a href="#" class="password-recovery">Password Recovery</a>
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+            <p style="margin-top: 1.5rem;">Don't have an account? <a href="#" style="color: var(--primary); font-weight: 600;" onclick="showRegisterForm()">Register</a></p>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard-container" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><span>MindCare</span></h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" onclick="showSection('patients-section')"><i class="fas fa-users"></i> <span>Patients</span></a></li>
+                <li><a href="#" onclick="showSection('dashboard-section')"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+                <li><a href="#" onclick="showSection('history-section')"><i class="fas fa-history"></i> <span>History</span></a></li>
+                <li><a href="#" onclick="showSection('profile-section')"><i class="fas fa-user-cog"></i> <span>Profile</span></a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h2>WELCOME <span id="headerUserName">User</span></h2>
+                <div class="user-info">
+                    <img id="headerUserImage" src="https://ui-avatars.com/api/?name=User&background=6a7de2&color=fff" alt="User">
+                    <span id="headerUserNameShort">User</span>
+                </div>
+            </div>
+
+            <!-- Patients Section -->
+            <div id="patients-section" class="patients-container">
+                <h3><i class="fas fa-users"></i> Patient Management</h3>
+                
+                <div class="patient-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="patientSearch" placeholder="Search patients..." oninput="filterPatients()">
+                    </div>
+                    <button class="add-patient-btn" onclick="showAddPatientModal()">
+                        <i class="fas fa-plus"></i> Add Patient
+                    </button>
+                </div>
+                
+                <div class="patient-grid" id="patientGrid">
+                    <!-- Patient cards will be populated here -->
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="dashboard-section" style="display: none;">
+                <div class="welcome-section">
+                    <h3>Welcome to MindCare - Mental Wellness Tracker</h3>
+                    <p>Track patient moods, journal entries, and activities to improve wellbeing. Monitor progress and provide better care with our comprehensive tools.</p>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-card" style="animation-delay: 0.1s;">
+                        <div class="number" id="totalPatients">0</div>
+                        <div class="label">Total Patients</div>
+                        <a href="#" class="view-details-btn" onclick="showSection('patients-section')">View All</a>
+                    </div>
+                    <div class="stat-card" style="animation-delay: 0.2s;">
+                        <div class="number" id="avgMood">0</div>
+                        <div class="label">Average Mood Score</div>
+                        <a href="#" class="view-details-btn" onclick="showSection('analytics-section')">View Details</a>
+                    </div>
+                    <div class="stat-card" style="animation-delay: 0.3s;">
+                        <div class="number" id="activePatients">0</div>
+                        <div class="label">Active Patients</div>
+                        <a href="#" class="view-details-btn" onclick="showSection('patients-section')">View Patients</a>
+                    </div>
+                </div>
+
+               
+
+                <div class="activities-container">
+                    <h3><i class="fas fa-lightbulb"></i> Suggested Activities</h3>
+                    <div id="suggestedActivities">
+                        <p>Complete mood entries for patients to get personalized activity suggestions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div id="history-section" class="history-container" style="display: none;">
+                <h3><i class="fas fa-history"></i> Patient History</h3>
+                
+                <div class="history-filters">
+                    <select class="filter-select" id="historyPatient">
+                        <option value="all">All Patients</option>
+                        <!-- Patient options will be populated here -->
+                    </select>
+                    
+                    <select class="filter-select" id="historyType">
+                        <option value="mood">Mood Entries</option>
+                        <option value="journal">Journal Entries</option>
+                        <option value="activities">Activity Logs</option>
+                        <option value="food">Food Logs</option>
+                    </select>
+                    
+                    <select class="filter-select" id="historyRange">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 3 months</option>
+                        <option value="365">Last year</option>
+                        <option value="all">All time</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+
+                    <div class="custom-date-filter" id="customDateFilter" style="display: none;">
+                        <input type="date" id="customDateFrom">
+                        <span>to</span>
+                        <input type="date" id="customDateTo">
+                    </div>
+                    
+                    <div class="view-toggle">
+                        <button class="view-toggle-btn active" id="tableViewBtn" onclick="toggleHistoryView('table')"><i class="fas fa-table"></i> Table</button>
+                        <button class="view-toggle-btn" id="cardsViewBtn" onclick="toggleHistoryView('cards')"><i class="fas fa-th-large"></i> Cards</button>
+                    </div>
+                    
+                    <button class="submit-btn" onclick="loadHistory()">Apply Filters</button>
+                </div>
+                
+                <div style="overflow-x: auto; display: none;" id="tableView">
+                    <table id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Patient</th>
+                                <th>Type</th>
+                                <th>Details</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- History will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="history-cards" id="cardsView">
+                    <!-- History cards will be populated here -->
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            
+            <!-- Profile Section -->
+            <div id="profile-section" class="form-container" style="display: none;">
+                <h3><i class="fas fa-user-cog"></i> Your Profile</h3>
+                
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-image">
+                            <img src="https://ui-avatars.com/api/?name=User&background=6a7de2&color=fff" alt="User" id="userProfileImage">
+                            <div class="image-upload">
+                                <label for="profileImageUpload" class="upload-btn">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                                <input type="file" id="profileImageUpload" accept="image/*" style="display: none;">
+                            </div>
+                        </div>
+                        <div class="profile-info">
+                            <h4 id="userName">User Name</h4>
+                            <p><i class="fas fa-envelope"></i> <span id="userEmail">user@example.com</span></p>
+                            <p><i class="fas fa-calendar-alt"></i> Member since: <span id="memberSinceDate"></span></p>
+                            <p><i class="fas fa-star"></i> Professional Therapist</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <div class="number" id="profilePatientCount">0</div>
+                            <div class="label">Patients</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="number" id="profileSessionCount">0</div>
+                            <div class="label">Sessions</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="number" id="profileAvgMood">0</div>
+                            <div class="label">Avg. Mood</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="number">98%</div>
+                            <div class="label">Satisfaction</div>
+                        </div>
+                    </div>
+            
+                    <div class="profile-form">
+                        <form id="userProfileForm">
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="userFirstName"><i class="fas fa-user"></i> First Name</label>
+                                        <input type="text" id="userFirstName" required>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="userLastName"><i class="fas fa-user"></i> Last Name</label>
+                                        <input type="text" id="userLastName" required>
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="userEmailInput"><i class="fas fa-envelope"></i> Email Address</label>
+                                        <input type="email" id="userEmailInput" required>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="userPhone"><i class="fas fa-phone"></i> Phone Number</label>
+                                        <input type="tel" id="userPhone">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="userSpecialization"><i class="fas fa-graduation-cap"></i> Specialization</label>
+                                        <input type="text" id="userSpecialization" value="Clinical Psychology">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="userExperience"><i class="fas fa-briefcase"></i> Years of Experience</label>
+                                        <input type="number" id="userExperience" value="8">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group-dashboard">
+                                <label for="userBio"><i class="fas fa-edit"></i> Bio</label>
+                                <textarea id="userBio" rows="3" placeholder="Tell us about yourself...">Dedicated mental health professional with a passion for helping patients achieve their wellness goals through personalized care and evidence-based practices.</textarea>
+                            </div>
+
+                            <div class="form-group-dashboard">
+                                <label for="userGoals"><i class="fas fa-bullseye"></i> Wellness Goals</label>
+                                <textarea id="userGoals" rows="3" placeholder="What are your mental wellness goals?">Help patients develop healthy coping mechanisms, improve emotional regulation, and build resilience through personalized treatment plans.</textarea>
+                            </div>
+            
+                            <div class="form-actions">
+                                <button type="button" class="cancel-btn" onclick="resetProfileForm()">Cancel</button>
+                                <button type="submit" class="submit-btn">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Detail Modal -->
+    <div class="modal-overlay" id="patientModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalPatientName">Patient Details</h3>
+                <button class="modal-close" onclick="closeModal('patientModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="patient-tabs">
+                    <div class="patient-tab active" onclick="switchPatientTab('details')"><i class="fas fa-info-circle"></i> Details</div>
+                    <div class="patient-tab" onclick="switchPatientTab('mood')"><i class="fas fa-smile"></i> Mood Tracking</div>
+                    <div class="patient-tab" onclick="switchPatientTab('journal')"><i class="fas fa-book"></i> Journal</div>
+                    <div class="patient-tab" onclick="switchPatientTab('activities')"><i class="fas fa-running"></i> Activities</div>
+                    <div class="patient-tab" onclick="switchPatientTab('food')"><i class="fas fa-utensils"></i> Food Tracking</div>
+                </div>
+                
+                <!-- Patient Details Tab -->
+                <div class="tab-content active" id="tab-details">
+                    <div class="form-container">
+                        <form id="patientForm">
+                            <input type="hidden" id="patientId">
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="patientName"><i class="fas fa-user"></i> Full Name</label>
+                                        <input type="text" id="patientName" required>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="patientAge"><i class="fas fa-birthday-cake"></i> Age</label>
+                                        <input type="number" id="patientAge" min="1" max="120" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="patientGender"><i class="fas fa-venus-mars"></i> Gender</label>
+                                        <select id="patientGender" required>
+                                            <option value="">Select Gender</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="patientContact"><i class="fas fa-phone"></i> Contact Number</label>
+                                        <input type="tel" id="patientContact">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="patientEmail"><i class="fas fa-envelope"></i> Email</label>
+                                        <input type="email" id="patientEmail">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="patientEmergencyContact"><i class="fas fa-phone-alt"></i> Emergency Contact</label>
+                                        <input type="text" id="patientEmergencyContact">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="patientAddress"><i class="fas fa-home"></i> Address</label>
+                                <textarea id="patientAddress" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="patientOccupation"><i class="fas fa-briefcase"></i> Occupation</label>
+                                        <input type="text" id="patientOccupation">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group-dashboard">
+                                        <label for="patientMaritalStatus"><i class="fas fa-heart"></i> Marital Status</label>
+                                        <select id="patientMaritalStatus">
+                                            <option value="">Select Status</option>
+                                            <option value="single">Single</option>
+                                            <option value="married">Married</option>
+                                            <option value="divorced">Divorced</option>
+                                            <option value="widowed">Widowed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="patientProblem"><i class="fas fa-stethoscope"></i> Problem/Diagnosis</label>
+                                <textarea id="patientProblem" rows="3" required></textarea>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="patientMedication"><i class="fas fa-pills"></i> Current Medication</label>
+                                <textarea id="patientMedication" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="patientAllergies"><i class="fas fa-allergies"></i> Allergies</label>
+                                <textarea id="patientAllergies" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="patientJoinDate"><i class="fas fa-calendar-plus"></i> Joining Date</label>
+                                <input type="date" id="patientJoinDate" required>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="patientImage"><i class="fas fa-camera"></i> Profile Photo</label>
+                                <input type="file" id="patientImage" accept="image/*">
+                                <img id="patientImagePreview" class="patient-image-preview" src="" style="display: none;">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Mood Tracking Tab -->
+                <div class="tab-content" id="tab-mood">
+                    <div class="mood-tracker">
+                        <h3>Mood Tracking for <span id="moodPatientName">Patient</span></h3>
+                        <form id="moodForm">
+                            <input type="hidden" id="moodPatientId">
+                            <div class="form-group-dashboard">
+                                <label for="moodDate"><i class="fas fa-calendar"></i> Date</label>
+                                <input type="date" id="moodDate" required>
+                            </div>
+                            
+                            <div class="mood-slider-container">
+                                <input type="range" min="1" max="10" value="5" class="mood-slider" id="moodRange">
+                                <div class="mood-labels">
+                                    <span>Very Low</span>
+                                    <span>Neutral</span>
+                                    <span>Very High</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mood-emoji" id="moodEmoji">😐</div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="moodNotes"><i class="fas fa-sticky-note"></i> Additional Notes (optional)</label>
+                                <textarea id="moodNotes" rows="3" placeholder="What's contributing to the patient's mood today?"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="submit-btn">Save Mood Entry</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Journal Tab -->
+                <div class="tab-content" id="tab-journal">
+                    <div class="journal-entry">
+                        <h3>Journal Entry for <span id="journalPatientName">Patient</span></h3>
+                        <form id="journalForm">
+                            <input type="hidden" id="journalPatientId">
+                            <div class="form-group-dashboard">
+                                <label for="journalDate"><i class="fas fa-calendar"></i> Date</label>
+                                <input type="date" id="journalDate" required>
+                            </div>
+                            
+                            <textarea class="journal-textarea" id="journalText" placeholder="Write journal entry here..."></textarea>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="journalTags"><i class="fas fa-tags"></i> Tags (comma separated)</label>
+                                <input type="text" id="journalTags" placeholder="e.g., progress, concern, improvement">
+                            </div>
+                            
+                            <button type="submit" class="submit-btn">Save Journal Entry</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Activities Tab -->
+                <div class="tab-content" id="tab-activities">
+                    <div class="activities-container">
+                        <h3>Activities for <span id="activityPatientName">Patient</span></h3>
+                        <form id="activityForm">
+                            <input type="hidden" id="activityPatientId">
+                            <div class="form-group-dashboard">
+                                <label for="activityDate"><i class="fas fa-calendar"></i> Date</label>
+                                <input type="date" id="activityDate" required>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label><i class="fas fa-tasks"></i> Select Activities</label>
+                                <div class="activity-grid" id="activityGrid">
+                                    <!-- Activities will be populated here -->
+                                </div>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="activityNotes"><i class="fas fa-sticky-note"></i> Notes (optional)</label>
+                                <textarea id="activityNotes" rows="3" placeholder="Any notes about these activities?"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="submit-btn">Save Activities</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Food Tracking Tab -->
+                <div class="tab-content" id="tab-food">
+                    <div class="food-tracker">
+                        <h3>Food Tracking for <span id="foodPatientName">Patient</span></h3>
+                        <form id="foodForm">
+                            <input type="hidden" id="foodPatientId">
+                            <div class="form-group-dashboard">
+                                <label for="foodDate"><i class="fas fa-calendar"></i> Date</label>
+                                <input type="date" id="foodDate" required>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="foodBreakfast"><i class="fas fa-egg"></i> Breakfast</label>
+                                <textarea id="foodBreakfast" rows="2" placeholder="What did the patient have for breakfast?"></textarea>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="foodLunch"><i class="fas fa-hamburger"></i> Lunch</label>
+                                <textarea id="foodLunch" rows="2" placeholder="What did the patient have for lunch?"></textarea>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="foodDinner"><i class="fas fa-fish"></i> Dinner</label>
+                                <textarea id="foodDinner" rows="2" placeholder="What did the patient have for dinner?"></textarea>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="foodSnacks"><i class="fas fa-cookie"></i> Snacks</label>
+                                <textarea id="foodSnacks" rows="2" placeholder="Any snacks consumed?"></textarea>
+                            </div>
+                            
+                            <div class="form-group-dashboard">
+                                <label for="foodNotes"><i class="fas fa-sticky-note"></i> Additional Notes</label>
+                                <textarea id="foodNotes" rows="3" placeholder="Any observations about eating habits, appetite, etc."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="submit-btn">Save Food Entry</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="download-btn" onclick="downloadPatientPDF()">
+                    <i class="fas fa-download"></i> Download Patient Report (PDF)
+                </button>
+                <button class="cancel-btn" onclick="closeModal('patientModal')">Close</button>
+                <button class="submit-btn" onclick="savePatient()" id="savePatientBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // User credentials and data
+        const USER_CREDENTIALS = {
+            username: "admin",
+            password: "admin123"
+        };
+
+        // Sample activities data
+        const ACTIVITIES = [
+            { id: "exercise", name: "Exercise", icon: "🏃", duration: "30 mins" },
+            { id: "meditation", name: "Meditation", icon: "🧘", duration: "15 mins" },
+            { id: "reading", name: "Reading", icon: "📖", duration: "30 mins" },
+            { id: "social", name: "Social Time", icon: "👥", duration: "1 hour" },
+            { id: "hobby", name: "Hobby Time", icon: "🎨", duration: "1 hour" },
+            { id: "nature", name: "Nature Walk", icon: "🌳", duration: "45 mins" },
+            { id: "music", name: "Listen to Music", icon: "🎵", duration: "30 mins" },
+            { id: "cooking", name: "Cooking", icon: "🍳", duration: "1 hour" }
+        ];
+
+        // DOM Elements
+        const loginPage = document.getElementById('loginPage');
+        const dashboard = document.getElementById('dashboard');
+        const loginForm = document.getElementById('loginForm');
+        const patientGrid = document.getElementById('patientGrid');
+        const historyTableBody = document.getElementById('historyTableBody');
+        const historyPatient = document.getElementById('historyPatient');
+        const activityGrid = document.getElementById('activityGrid');
+        const historyRange = document.getElementById('historyRange');
+        const customDateFilter = document.getElementById('customDateFilter');
+        const tableView = document.getElementById('tableView');
+        const cardsView = document.getElementById('cardsView');
+        const tableViewBtn = document.getElementById('tableViewBtn');
+        const cardsViewBtn = document.getElementById('cardsViewBtn');
+
+        // Chart variables
+        let moodChart = null;
+        let moodTrendChart = null;
+        let activityEffectivenessChart = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize with login page
+            dashboard.style.display = 'none';
+            
+            // Set today's date as default for forms
+            const today = new Date().toISOString().split('T')[0];
+            if (document.getElementById('moodDate')) {
+                document.getElementById('moodDate').value = today;
+            }
+            if (document.getElementById('journalDate')) {
+                document.getElementById('journalDate').value = today;
+            }
+            if (document.getElementById('activityDate')) {
+                document.getElementById('activityDate').value = today;
+            }
+            if (document.getElementById('foodDate')) {
+                document.getElementById('foodDate').value = today;
+            }
+            if (document.getElementById('patientJoinDate')) {
+                document.getElementById('patientJoinDate').value = today;
+            }
+            
+            // Populate activities grid
+            populateActivitiesGrid();
+            
+            // Set up custom date filter toggle
+            historyRange.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDateFilter.style.display = 'flex';
+                } else {
+                    customDateFilter.style.display = 'none';
+                }
+            });
+        });
+
+        function setupEventListeners() {
+            // Login form
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('loginId').value;
+                    const password = document.getElementById('password').value;
+                    
+                    if (username === USER_CREDENTIALS.username && password === USER_CREDENTIALS.password) {
+                        // Show loading animation
+                        const loginBtn = document.querySelector('.login-btn');
+                        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                        loginBtn.disabled = true;
+                        
+                        setTimeout(() => {
+                            loginPage.style.display = 'none';
+                            dashboard.style.display = 'flex';
+                            loginBtn.innerHTML = 'Login';
+                            loginBtn.disabled = false;
+                            loginForm.reset();
+                            showSection('patients-section');
+                            onLoginSuccess();
+                        }, 1500);
+                    } else {
+                        showNotification('Invalid credentials!', 'danger');
+                    }
+                });
+            }
+
+            // Patient form
+            const patientForm = document.getElementById('patientForm');
+            if (patientForm) {
+                patientForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    savePatient();
+                });
+            }
+
+            // Patient image preview
+            const patientImage = document.getElementById('patientImage');
+            if (patientImage) {
+                patientImage.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            document.getElementById('patientImagePreview').src = event.target.result;
+                            document.getElementById('patientImagePreview').style.display = 'block';
+                            document.getElementById('patientImage').dataset.tempUrl = event.target.result;
+                            showNotification('Patient image selected!', 'info');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Mood form
+            const moodForm = document.getElementById('moodForm');
+            if (moodForm) {
+                moodForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const moodEntry = {
+                        id: Date.now().toString(),
+                        patientId: document.getElementById('moodPatientId').value,
+                        date: document.getElementById('moodDate').value,
+                        rating: parseInt(document.getElementById('moodRange').value),
+                        notes: document.getElementById('moodNotes').value
+                    };
+                    
+                    saveMoodEntry(moodEntry);
+                    showNotification('Mood saved successfully!', 'success');
+                    moodForm.reset();
+                    document.getElementById('moodDate').value = new Date().toISOString().split('T')[0];
+                    document.getElementById('moodRange').value = 5;
+                    updateMoodEmoji(5);
+                });
+            }
+
+            // Journal form
+            const journalForm = document.getElementById('journalForm');
+            if (journalForm) {
+                journalForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const journalEntry = {
+                        id: Date.now().toString(),
+                        patientId: document.getElementById('journalPatientId').value,
+                        date: document.getElementById('journalDate').value,
+                        text: document.getElementById('journalText').value,
+                        tags: document.getElementById('journalTags').value.split(',').map(tag => tag.trim())
+                    };
+                    
+                    saveJournalEntry(journalEntry);
+                    showNotification('Journal entry saved successfully!', 'success');
+                    journalForm.reset();
+                    document.getElementById('journalDate').value = new Date().toISOString().split('T')[0];
+                });
+            }
+
+            // Activity form
+            const activityForm = document.getElementById('activityForm');
+            if (activityForm) {
+                activityForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const selectedActivities = Array.from(document.querySelectorAll('#activityGrid .activity-card.selected'))
+                        .map(card => card.getAttribute('data-activity-id'));
+                    
+                    const activityLog = {
+                        id: Date.now().toString(),
+                        patientId: document.getElementById('activityPatientId').value,
+                        date: document.getElementById('activityDate').value,
+                        activityIds: selectedActivities,
+                        notes: document.getElementById('activityNotes').value
+                    };
+                    
+                    saveActivityLog(activityLog);
+                    showNotification('Activities logged successfully!', 'success');
+                    
+                    // Reset form but keep date
+                    document.querySelectorAll('#activityGrid .activity-card.selected').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    document.getElementById('activityNotes').value = '';
+                    document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
+                });
+            }
+
+            // Food form
+            const foodForm = document.getElementById('foodForm');
+            if (foodForm) {
+                foodForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const foodEntry = {
+                        id: Date.now().toString(),
+                        patientId: document.getElementById('foodPatientId').value,
+                        date: document.getElementById('foodDate').value,
+                        breakfast: document.getElementById('foodBreakfast').value,
+                        lunch: document.getElementById('foodLunch').value,
+                        dinner: document.getElementById('foodDinner').value,
+                        snacks: document.getElementById('foodSnacks').value,
+                        notes: document.getElementById('foodNotes').value
+                    };
+                    
+                    saveFoodEntry(foodEntry);
+                    showNotification('Food entry saved successfully!', 'success');
+                    foodForm.reset();
+                    document.getElementById('foodDate').value = new Date().toISOString().split('T')[0];
+                });
+            }
+
+            // User profile form
+            const userProfileForm = document.getElementById('userProfileForm');
+            if (userProfileForm) {
+                userProfileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const userData = {
+                        firstName: document.getElementById('userFirstName').value,
+                        lastName: document.getElementById('userLastName').value,
+                        email: document.getElementById('userEmailInput').value,
+                        phone: document.getElementById('userPhone').value,
+                        specialization: document.getElementById('userSpecialization').value,
+                        experience: document.getElementById('userExperience').value,
+                        bio: document.getElementById('userBio').value,
+                        goals: document.getElementById('userGoals').value
+                    };
+                    
+                    localStorage.setItem('userProfile', JSON.stringify(userData));
+                    showNotification('Profile updated successfully!', 'success');
+                    
+                    // Update displayed info
+                    document.getElementById('userName').textContent = `${userData.firstName} ${userData.lastName}`;
+                    document.getElementById('userEmail').textContent = userData.email;
+                    document.getElementById('headerUserName').textContent = userData.firstName;
+                    document.getElementById('headerUserNameShort').textContent = userData.firstName;
+                    document.getElementById('headerUserImage').src = document.getElementById('userProfileImage').src;
+                });
+            }
+
+            // Profile image upload
+            const profileImageUpload = document.getElementById('profileImageUpload');
+            if (profileImageUpload) {
+                profileImageUpload.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            document.getElementById('userProfileImage').src = event.target.result;
+                            localStorage.setItem('userProfileImage', event.target.result);
+                            document.getElementById('headerUserImage').src = event.target.result;
+                            showNotification('Profile image updated!', 'success');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Mood slider change
+            const moodRange = document.getElementById('moodRange');
+            if (moodRange) {
+                moodRange.addEventListener('input', function() {
+                    updateMoodEmoji(this.value);
+                });
+            }
+        }
+
+        // Data management functions
+        function getPatients() {
+            return JSON.parse(localStorage.getItem('patients')) || [];
+        }
+
+        function savePatient() {
+            const patients = getPatients();
+            const patientId = document.getElementById('patientId').value;
+            const patientData = {
+                id: patientId || Date.now().toString(),
+                name: document.getElementById('patientName').value,
+                age: document.getElementById('patientAge').value,
+                gender: document.getElementById('patientGender').value,
+                email: document.getElementById('patientEmail').value,
+                phone: document.getElementById('patientContact').value,
+                emergencyContact: document.getElementById('patientEmergencyContact').value,
+                address: document.getElementById('patientAddress').value,
+                occupation: document.getElementById('patientOccupation').value,
+                maritalStatus: document.getElementById('patientMaritalStatus').value,
+                problem: document.getElementById('patientProblem').value,
+                medication: document.getElementById('patientMedication').value,
+                allergies: document.getElementById('patientAllergies').value,
+                joinDate: document.getElementById('patientJoinDate').value,
+                image: document.getElementById('patientImage').dataset.tempUrl || 
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(document.getElementById('patientName').value)}&background=6a7de2&color=fff`,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            if (patientId) {
+                // Update existing patient
+                const index = patients.findIndex(p => p.id === patientId);
+                if (index !== -1) {
+                    patients[index] = {...patients[index], ...patientData};
+                }
+            } else {
+                // Add new patient
+                patientData.created = new Date().toISOString();
+                patients.push(patientData);
+            }
+            
+            localStorage.setItem('patients', JSON.stringify(patients));
+            showNotification(`Patient ${patientId ? 'updated' : 'added'} successfully!`, 'success');
+            renderPatients();
+            closeModal('patientModal');
+            updateDashboardStats();
+        }
+
+        function deletePatient(id) {
+            if (confirm('Are you sure you want to delete this patient? This action cannot be undone.')) {
+                let patients = getPatients();
+                patients = patients.filter(p => p.id !== id);
+                
+                // Also delete related data
+                const moodEntries = getMoodEntries().filter(m => m.patientId !== id);
+                const journalEntries = getJournalEntries().filter(j => j.patientId !== id);
+                const activityLogs = getActivityLogs().filter(a => a.patientId !== id);
+                const foodEntries = getFoodEntries().filter(f => f.patientId !== id);
+                
+                localStorage.setItem('patients', JSON.stringify(patients));
+                localStorage.setItem('moodEntries', JSON.stringify(moodEntries));
+                localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+                localStorage.setItem('activityLogs', JSON.stringify(activityLogs));
+                localStorage.setItem('foodEntries', JSON.stringify(foodEntries));
+                
+                renderPatients();
+                updateDashboardStats();
+                showNotification('Patient deleted successfully!', 'success');
+            }
+        }
+
+        function getMoodEntries() {
+            return JSON.parse(localStorage.getItem('moodEntries')) || [];
+        }
+
+        function saveMoodEntry(entry) {
+            const entries = getMoodEntries();
+            entries.push(entry);
+            localStorage.setItem('moodEntries', JSON.stringify(entries));
+        }
+
+        function getJournalEntries() {
+            return JSON.parse(localStorage.getItem('journalEntries')) || [];
+        }
+
+        function saveJournalEntry(entry) {
+            const entries = getJournalEntries();
+            entries.push(entry);
+            localStorage.setItem('journalEntries', JSON.stringify(entries));
+        }
+
+        function getActivityLogs() {
+            return JSON.parse(localStorage.getItem('activityLogs')) || [];
+        }
+
+        function saveActivityLog(log) {
+            const logs = getActivityLogs();
+            logs.push(log);
+            localStorage.setItem('activityLogs', JSON.stringify(logs));
+        }
+
+        function getFoodEntries() {
+            return JSON.parse(localStorage.getItem('foodEntries')) || [];
+        }
+
+        function saveFoodEntry(entry) {
+            const entries = getFoodEntries();
+            entries.push(entry);
+            localStorage.setItem('foodEntries', JSON.stringify(entries));
+        }
+
+        // UI update functions
+        function renderPatients() {
+            const patients = getPatients();
+            const searchTerm = document.getElementById('patientSearch').value.toLowerCase();
+            
+            // Filter patients based on search term
+            const filteredPatients = patients.filter(patient => 
+                patient.name.toLowerCase().includes(searchTerm) || 
+                patient.problem.toLowerCase().includes(searchTerm)
+            );
+            
+            patientGrid.innerHTML = '';
+            
+            if (filteredPatients.length === 0) {
+                patientGrid.innerHTML = `
+                    <div class="no-patients" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                        <i class="fas fa-users" style="font-size: 4rem; color: #6a7de2; margin-bottom: 1.5rem;"></i>
+                        <h3 style="color: #4a5568; margin-bottom: 1rem;">No patients found</h3>
+                        <p style="color: #718096;">${patients.length === 0 ? 'Get started by adding your first patient.' : 'Try adjusting your search criteria.'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredPatients.forEach(patient => {
+                const card = document.createElement('div');
+                card.className = 'patient-card';
+                card.innerHTML = `
+                    <div class="patient-header">
+                        <img src="${patient.image}" alt="${patient.name}" class="patient-image">
+                        <h3 class="patient-name">${patient.name}</h3>
+                        <p class="patient-age">${patient.age} years old</p>
+                    </div>
+                    <div class="patient-body">
+                        <div class="patient-detail">
+                            <span class="patient-detail-label"><i class="fas fa-stethoscope"></i> Problem:</span>
+                            <span class="patient-detail-value">${patient.problem}</span>
+                        </div>
+                        <div class="patient-detail">
+                            <span class="patient-detail-label"><i class="fas fa-phone"></i> Contact:</span>
+                            <span class="patient-detail-value">${patient.phone || 'N/A'}</span>
+                        </div>
+                        <div class="patient-detail">
+                            <span class="patient-detail-label"><i class="fas fa-home"></i> Address:</span>
+                            <span class="patient-detail-value">${patient.address || 'N/A'}</span>
+                        </div>
+                        <div class="patient-detail">
+                            <span class="patient-detail-label"><i class="fas fa-calendar-plus"></i> Joined:</span>
+                            <span class="patient-detail-value">${formatDate(patient.joinDate)}</span>
+                        </div>
+                    </div>
+                    <div class="patient-footer">
+                        <button class="patient-action-btn view-btn" onclick="viewPatient('${patient.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="patient-action-btn edit-btn" onclick="editPatient('${patient.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="patient-action-btn delete-btn" onclick="deletePatient('${patient.id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                
+                patientGrid.appendChild(card);
+            });
+            
+            // Update patient filter in history section
+            updatePatientFilter();
+        }
+
+        function filterPatients() {
+            renderPatients();
+        }
+
+        function updatePatientFilter() {
+            const patients = getPatients();
+            historyPatient.innerHTML = '<option value="all">All Patients</option>';
+            
+            patients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = patient.name;
+                historyPatient.appendChild(option);
+            });
+        }
+
+        function populateActivitiesGrid() {
+            if (!activityGrid) return;
+            
+            activityGrid.innerHTML = '';
+            
+            ACTIVITIES.forEach(activity => {
+                const card = document.createElement('div');
+                card.className = 'activity-card';
+                card.setAttribute('data-activity-id', activity.id);
+                card.innerHTML = `
+                    <div class="activity-icon">${activity.icon}</div>
+                    <div class="activity-name">${activity.name}</div>
+                    <div class="activity-duration">${activity.duration}</div>
+                `;
+                
+                card.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+                
+                activityGrid.appendChild(card);
+            });
+        }
+
+        function updateMoodEmoji(value) {
+            const moodEmoji = document.getElementById('moodEmoji');
+            if (!moodEmoji) return;
+            
+            const emojis = ['😢', '😔', '😐', '🙂', '😊', '😄', '🤩'];
+            const index = Math.min(Math.floor((value - 1) / (10 / emojis.length)), emojis.length - 1);
+            moodEmoji.textContent = emojis[index];
+        }
+
+        function renderHistoryTable(type, range, patientId = 'all') {
+            historyTableBody.innerHTML = '';
+            
+            let data = [];
+            
+            if (type === 'mood') {
+                data = getMoodEntries();
+            } else if (type === 'journal') {
+                data = getJournalEntries();
+            } else if (type === 'activities') {
+                data = getActivityLogs();
+            } else if (type === 'food') {
+                data = getFoodEntries();
+            }
+            
+            // Filter by patient if needed
+            if (patientId !== 'all') {
+                data = data.filter(entry => entry.patientId === patientId);
+            }
+            
+            // Filter by date range if needed
+            if (range !== 'all') {
+                if (range === 'custom') {
+                    const fromDate = new Date(document.getElementById('customDateFrom').value);
+                    const toDate = new Date(document.getElementById('customDateTo').value);
+                    toDate.setDate(toDate.getDate() + 1); // Include the end date
+                    
+                    data = data.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate >= fromDate && entryDate <= toDate;
+                    });
+                } else {
+                    const cutoffDate = new Date();
+                    cutoffDate.setDate(cutoffDate.getDate() - parseInt(range));
+                    data = data.filter(entry => new Date(entry.date) >= cutoffDate);
+                }
+            }
+            
+            // Sort by date (newest first)
+            data.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" style="text-align: center; padding: 2rem; color: #718096;">No entries found</td>`;
+                historyTableBody.appendChild(row);
+                return;
+            }
+            
+            const patients = getPatients();
+            
+            data.forEach(entry => {
+                const row = document.createElement('tr');
+                const patient = patients.find(p => p.id === entry.patientId) || { name: 'Unknown Patient' };
+                
+                if (type === 'mood') {
+                    const emojis = ['😢', '😔', '😐', '🙂', '😊', '😄', '🤩'];
+                    const index = Math.min(Math.floor((entry.rating - 1) / (10 / emojis.length)), emojis.length - 1);
+                    
+                    row.innerHTML = `
+                        <td>${formatDate(entry.date)}</td>
+                        <td>${patient.name}</td>
+                        <td>Mood Entry</td>
+                        <td>${emojis[index]} ${entry.rating}/10 - ${entry.notes || 'No notes'}</td>
+                        <td>
+                            <button class="view-btn" onclick="viewEntry('mood', '${entry.id}')">View</button>
+                            <button class="delete-btn" onclick="deleteEntry('mood', '${entry.id}')">Delete</button>
+                        </td>
+                    `;
+                } else if (type === 'journal') {
+                    const preview = entry.text.length > 50 ? entry.text.substring(0, 50) + '...' : entry.text;
+                    
+                    row.innerHTML = `
+                        <td>${formatDate(entry.date)}</td>
+                        <td>${patient.name}</td>
+                        <td>Journal Entry</td>
+                        <td>${preview} (Tags: ${entry.tags.join(', ') || 'None'})</td>
+                        <td>
+                            <button class="view-btn" onclick="viewEntry('journal', '${entry.id}')">View</button>
+                            <button class="edit-btn" onclick="editEntry('journal', '${entry.id}')">Edit</button>
+                            <button class="delete-btn" onclick="deleteEntry('journal', '${entry.id}')">Delete</button>
+                        </td>
+                    `;
+                } else if (type === 'activities') {
+                    const activityNames = entry.activityIds.map(id => {
+                        const activity = ACTIVITIES.find(a => a.id === id);
+                        return activity ? activity.name : 'Unknown';
+                    });
+                    
+                    row.innerHTML = `
+                        <td>${formatDate(entry.date)}</td>
+                        <td>${patient.name}</td>
+                        <td>Activity Log</td>
+                        <td>${activityNames.join(', ')} - ${entry.notes || 'No notes'}</td>
+                        <td>
+                            <button class="view-btn" onclick="viewEntry('activities', '${entry.id}')">View</button>
+                            <button class="delete-btn" onclick="deleteEntry('activities', '${entry.id}')">Delete</button>
+                        </td>
+                    `;
+                } else if (type === 'food') {
+                    row.innerHTML = `
+                        <td>${formatDate(entry.date)}</td>
+                        <td>${patient.name}</td>
+                        <td>Food Log</td>
+                        <td>Breakfast: ${entry.breakfast || 'N/A'}, Lunch: ${entry.lunch || 'N/A'}, Dinner: ${entry.dinner || 'N/A'}</td>
+                        <td>
+                            <button class="view-btn" onclick="viewEntry('food', '${entry.id}')">View</button>
+                            <button class="delete-btn" onclick="deleteEntry('food', '${entry.id}')">Delete</button>
+                        </td>
+                    `;
+                }
+                
+                historyTableBody.appendChild(row);
+            });
+        }
+
+        function renderHistoryCards(type, range, patientId = 'all') {
+            cardsView.innerHTML = '';
+            
+            let data = [];
+            
+            if (type === 'mood') {
+                data = getMoodEntries();
+            } else if (type === 'journal') {
+                data = getJournalEntries();
+            } else if (type === 'activities') {
+                data = getActivityLogs();
+            } else if (type === 'food') {
+                data = getFoodEntries();
+            }
+            
+            // Filter by patient if needed
+            if (patientId !== 'all') {
+                data = data.filter(entry => entry.patientId === patientId);
+            }
+            
+            // Filter by date range if needed
+            if (range !== 'all') {
+                if (range === 'custom') {
+                    const fromDate = new Date(document.getElementById('customDateFrom').value);
+                    const toDate = new Date(document.getElementById('customDateTo').value);
+                    toDate.setDate(toDate.getDate() + 1); // Include the end date
+                    
+                    data = data.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate >= fromDate && entryDate <= toDate;
+                    });
+                } else {
+                    const cutoffDate = new Date();
+                    cutoffDate.setDate(cutoffDate.getDate() - parseInt(range));
+                    data = data.filter(entry => new Date(entry.date) >= cutoffDate);
+                }
+            }
+            
+            // Sort by date (newest first)
+            data.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (data.length === 0) {
+                cardsView.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #718096;">
+                        <i class="fas fa-inbox" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
+                        <h3>No entries found</h3>
+                    </div>
+                `;
+                return;
+            }
+            
+            const patients = getPatients();
+            
+            data.forEach(entry => {
+                const card = document.createElement('div');
+                card.className = 'history-card';
+                
+                const patient = patients.find(p => p.id === entry.patientId) || { name: 'Unknown Patient' };
+                
+                if (type === 'mood') {
+                    const emojis = ['😢', '😔', '😐', '🙂', '😊', '😄', '🤩'];
+                    const index = Math.min(Math.floor((entry.rating - 1) / (10 / emojis.length)), emojis.length - 1);
+                    
+                    card.classList.add('mood');
+                    card.innerHTML = `
+                        <div class="history-card-header">
+                            <div class="history-card-type"><i class="fas fa-smile"></i> Mood Entry</div>
+                            <div class="history-card-date">${formatDate(entry.date)}</div>
+                        </div>
+                        <div class="history-card-patient">${patient.name}</div>
+                        <div class="history-card-content">
+                            <div style="font-size: 2rem; text-align: center; margin: 10px 0;">${emojis[index]} ${entry.rating}/10</div>
+                            <p>${entry.notes || 'No notes provided'}</p>
+                        </div>
+                        <div class="history-card-actions">
+                            <button class="view-btn" onclick="viewEntry('mood', '${entry.id}')">View</button>
+                            <button class="delete-btn" onclick="deleteEntry('mood', '${entry.id}')">Delete</button>
+                        </div>
+                    `;
+                } else if (type === 'journal') {
+                    const preview = entry.text.length > 150 ? entry.text.substring(0, 150) + '...' : entry.text;
+                    
+                    card.classList.add('journal');
+                    card.innerHTML = `
+                        <div class="history-card-header">
+                            <div class="history-card-type"><i class="fas fa-book"></i> Journal Entry</div>
+                            <div class="history-card-date">${formatDate(entry.date)}</div>
+                        </div>
+                        <div class="history-card-patient">${patient.name}</div>
+                        <div class="history-card-content">
+                            <p>${preview}</p>
+                            <div style="margin-top: 10px;">
+                                <strong>Tags:</strong> ${entry.tags.join(', ') || 'None'}
+                            </div>
+                        </div>
+                        <div class="history-card-actions">
+                            <button class="view-btn" onclick="viewEntry('journal', '${entry.id}')">View</button>
+                            <button class="edit-btn" onclick="editEntry('journal', '${entry.id}')">Edit</button>
+                            <button class="delete-btn" onclick="deleteEntry('journal', '${entry.id}')">Delete</button>
+                        </div>
+                    `;
+                } else if (type === 'activities') {
+                    const activityNames = entry.activityIds.map(id => {
+                        const activity = ACTIVITIES.find(a => a.id === id);
+                        return activity ? activity.name : 'Unknown';
+                    });
+                    
+                    card.classList.add('activities');
+                    card.innerHTML = `
+                        <div class="history-card-header">
+                            <div class="history-card-type"><i class="fas fa-running"></i> Activity Log</div>
+                            <div class="history-card-date">${formatDate(entry.date)}</div>
+                        </div>
+                        <div class="history-card-patient">${patient.name}</div>
+                        <div class="history-card-content">
+                            <p><strong>Activities:</strong> ${activityNames.join(', ')}</p>
+                            <p style="margin-top: 10px;">${entry.notes || 'No notes provided'}</p>
+                        </div>
+                        <div class="history-card-actions">
+                            <button class="view-btn" onclick="viewEntry('activities', '${entry.id}')">View</button>
+                            <button class="delete-btn" onclick="deleteEntry('activities', '${entry.id}')">Delete</button>
+                        </div>
+                    `;
+                } else if (type === 'food') {
+                    card.classList.add('food');
+                    card.innerHTML = `
+                        <div class="history-card-header">
+                            <div class="history-card-type"><i class="fas fa-utensils"></i> Food Log</div>
+                            <div class="history-card-date">${formatDate(entry.date)}</div>
+                        </div>
+                        <div class="history-card-patient">${patient.name}</div>
+                        <div class="history-card-content">
+                            <p><strong>Breakfast:</strong> ${entry.breakfast || 'N/A'}</p>
+                            <p><strong>Lunch:</strong> ${entry.lunch || 'N/A'}</p>
+                            <p><strong>Dinner:</strong> ${entry.dinner || 'N/A'}</p>
+                            <p><strong>Snacks:</strong> ${entry.snacks || 'N/A'}</p>
+                            <p style="margin-top: 10px;">${entry.notes || 'No additional notes'}</p>
+                        </div>
+                        <div class="history-card-actions">
+                            <button class="view-btn" onclick="viewEntry('food', '${entry.id}')">View</button>
+                            <button class="delete-btn" onclick="deleteEntry('food', '${entry.id}')">Delete</button>
+                        </div>
+                    `;
+                }
+                
+                cardsView.appendChild(card);
+            });
+        }
+
+        function viewEntry(type, id) {
+            if (type === 'mood') {
+                const entries = getMoodEntries();
+                const entry = entries.find(e => e.id === id);
+                const patients = getPatients();
+                const patient = patients.find(p => p.id === entry.patientId) || { name: 'Unknown Patient' };
+                
+                if (entry) {
+                    alert(`Mood Entry for ${patient.name} - ${formatDate(entry.date)}\nRating: ${entry.rating}/10\nNotes: ${entry.notes || 'None'}`);
+                }
+            } else if (type === 'journal') {
+                const entries = getJournalEntries();
+                const entry = entries.find(e => e.id === id);
+                const patients = getPatients();
+                const patient = patients.find(p => p.id === entry.patientId) || { name: 'Unknown Patient' };
+                
+                if (entry) {
+                    alert(`Journal Entry for ${patient.name} - ${formatDate(entry.date)}\nTags: ${entry.tags.join(', ') || 'None'}\n\n${entry.text}`);
+                }
+            } else if (type === 'activities') {
+                const logs = getActivityLogs();
+                const log = logs.find(l => l.id === id);
+                const patients = getPatients();
+                const patient = patients.find(p => p.id === log.patientId) || { name: 'Unknown Patient' };
+                
+                if (log) {
+                    const activityNames = log.activityIds.map(id => {
+                        const activity = ACTIVITIES.find(a => a.id === id);
+                        return activity ? activity.name : 'Unknown';
+                    });
+                    
+                    alert(`Activity Log for ${patient.name} - ${formatDate(log.date)}\nActivities: ${activityNames.join(', ')}\nNotes: ${log.notes || 'None'}`);
+                }
+            } else if (type === 'food') {
+                const entries = getFoodEntries();
+                const entry = entries.find(e => e.id === id);
+                const patients = getPatients();
+                const patient = patients.find(p => p.id === entry.patientId) || { name: 'Unknown Patient' };
+                
+                if (entry) {
+                    alert(`Food Entry for ${patient.name} - ${formatDate(entry.date)}
+Breakfast: ${entry.breakfast || 'N/A'}
+Lunch: ${entry.lunch || 'N/A'}
+Dinner: ${entry.dinner || 'N/A'}
+Snacks: ${entry.snacks || 'N/A'}
+Notes: ${entry.notes || 'None'}`);
+                }
+            }
+        }
+
+        function editEntry(type, id) {
+            if (type === 'journal') {
+                const entries = getJournalEntries();
+                const entry = entries.find(e => e.id === id);
+                
+                if (entry) {
+                    // Find the patient and open their journal tab
+                    const patients = getPatients();
+                    const patient = patients.find(p => p.id === entry.patientId);
+                    
+                    if (patient) {
+                        viewPatient(patient.id);
+                        setTimeout(() => {
+                            switchPatientTab('journal');
+                            document.getElementById('journalDate').value = entry.date;
+                            document.getElementById('journalText').value = entry.text;
+                            document.getElementById('journalTags').value = entry.tags.join(', ');
+                        }, 300);
+                    }
+                }
+            }
+        }
+
+        function deleteEntry(type, id) {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                if (type === 'mood') {
+                    const entries = getMoodEntries();
+                    const updatedEntries = entries.filter(e => e.id !== id);
+                    localStorage.setItem('moodEntries', JSON.stringify(updatedEntries));
+                } else if (type === 'journal') {
+                    const entries = getJournalEntries();
+                    const updatedEntries = entries.filter(e => e.id !== id);
+                    localStorage.setItem('journalEntries', JSON.stringify(updatedEntries));
+                } else if (type === 'activities') {
+                    const logs = getActivityLogs();
+                    const updatedLogs = logs.filter(l => l.id !== id);
+                    localStorage.setItem('activityLogs', JSON.stringify(updatedLogs));
+                } else if (type === 'food') {
+                    const entries = getFoodEntries();
+                    const updatedEntries = entries.filter(e => e.id !== id);
+                    localStorage.setItem('foodEntries', JSON.stringify(updatedEntries));
+                }
+                
+                loadHistory();
+                showNotification('Entry deleted successfully!', 'success');
+            }
+        }
+
+        // Patient functions
+        function showAddPatientModal() {
+            // Reset form
+            document.getElementById('patientForm').reset();
+            document.getElementById('patientId').value = '';
+            delete document.getElementById('patientImage').dataset.tempUrl;
+            document.getElementById('patientImagePreview').style.display = 'none';
+            document.getElementById('patientJoinDate').value = new Date().toISOString().split('T')[0];
+            
+            // Set modal title
+            document.getElementById('modalPatientName').textContent = 'Add New Patient';
+            
+            // Show modal
+            document.getElementById('patientModal').style.display = 'flex';
+        }
+
+        function viewPatient(id) {
+            const patients = getPatients();
+            const patient = patients.find(p => p.id === id);
+            
+            if (patient) {
+                // Fill form with patient data
+                document.getElementById('patientId').value = patient.id;
+                document.getElementById('patientName').value = patient.name;
+                document.getElementById('patientAge').value = patient.age;
+                document.getElementById('patientGender').value = patient.gender || '';
+                document.getElementById('patientEmail').value = patient.email || '';
+                document.getElementById('patientContact').value = patient.phone || '';
+                document.getElementById('patientEmergencyContact').value = patient.emergencyContact || '';
+                document.getElementById('patientAddress').value = patient.address || '';
+                document.getElementById('patientOccupation').value = patient.occupation || '';
+                document.getElementById('patientMaritalStatus').value = patient.maritalStatus || '';
+                document.getElementById('patientProblem').value = patient.problem;
+                document.getElementById('patientMedication').value = patient.medication || '';
+                document.getElementById('patientAllergies').value = patient.allergies || '';
+                document.getElementById('patientJoinDate').value = patient.joinDate;
+                
+                // Set patient image
+                const patientImage = document.getElementById('patientImage');
+                patientImage.dataset.tempUrl = patient.image;
+                document.getElementById('patientImagePreview').src = patient.image;
+                document.getElementById('patientImagePreview').style.display = 'block';
+                
+                // Set modal title
+                document.getElementById('modalPatientName').textContent = patient.name;
+                document.getElementById('moodPatientName').textContent = patient.name;
+                document.getElementById('journalPatientName').textContent = patient.name;
+                document.getElementById('activityPatientName').textContent = patient.name;
+                document.getElementById('foodPatientName').textContent = patient.name;
+                
+                // Set patient ID in all forms
+                document.getElementById('moodPatientId').value = patient.id;
+                document.getElementById('journalPatientId').value = patient.id;
+                document.getElementById('activityPatientId').value = patient.id;
+                document.getElementById('foodPatientId').value = patient.id;
+                
+                // Show modal
+                document.getElementById('patientModal').style.display = 'flex';
+                
+                // Switch to details tab
+                switchPatientTab('details');
+            }
+        }
+
+        function editPatient(id) {
+            viewPatient(id);
+            document.getElementById('savePatientBtn').style.display = 'block';
+        }
+
+        function switchPatientTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Update tab navigation
+            document.querySelectorAll('.patient-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelector(`.patient-tab:nth-child(${['details', 'mood', 'journal', 'activities', 'food'].indexOf(tabName) + 1})`).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function downloadPatientPDF() {
+            const patientId = document.getElementById('patientId').value;
+            if (!patientId) {
+                showNotification('No patient selected!', 'warning');
+                return;
+            }
+            
+            const patients = getPatients();
+            const patient = patients.find(p => p.id === patientId);
+            
+            if (!patient) {
+                showNotification('Patient not found!', 'danger');
+                return;
+            }
+            
+            // Use jsPDF for PDF generation
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add logo and header
+            doc.setFillColor(106, 125, 226);
+            doc.rect(0, 0, 210, 30, 'F');
+            doc.setFontSize(22);
+            doc.setTextColor(255, 255, 255);
+            doc.text('MindCare Patient Report', 105, 17, { align: 'center' });
+            
+            // Add patient details
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            
+            // Add patient image if available
+            if (patient.image && patient.image.startsWith('data:image')) {
+                doc.addImage(patient.image, 'JPEG', 150, 40, 40, 40);
+            }
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('Patient Information:', 14, 45);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Name: ${patient.name}`, 20, 55);
+            doc.text(`Age: ${patient.age}`, 20, 62);
+            doc.text(`Gender: ${patient.gender || 'N/A'}`, 20, 69);
+            doc.text(`Contact: ${patient.phone || 'N/A'}`, 20, 76);
+            doc.text(`Email: ${patient.email || 'N/A'}`, 20, 83);
+            doc.text(`Address: ${patient.address || 'N/A'}`, 20, 90);
+            doc.text(`Occupation: ${patient.occupation || 'N/A'}`, 20, 97);
+            doc.text(`Marital Status: ${patient.maritalStatus || 'N/A'}`, 20, 104);
+            doc.text(`Problem/Diagnosis: ${patient.problem}`, 20, 111);
+            doc.text(`Medication: ${patient.medication || 'N/A'}`, 20, 118);
+            doc.text(`Allergies: ${patient.allergies || 'N/A'}`, 20, 125);
+            doc.text(`Joining Date: ${formatDate(patient.joinDate)}`, 20, 132);
+            
+            // Add mood data if available
+            const moodEntries = getMoodEntries().filter(m => m.patientId === patientId);
+            if (moodEntries.length > 0) {
+                doc.addPage();
+                doc.setFont(undefined, 'bold');
+                doc.text('Mood Tracking History:', 14, 20);
+                doc.setFont(undefined, 'normal');
+                
+                let y = 30;
+                moodEntries.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(entry => {
+                    const emojis = ['😢', '😔', '😐', '🙂', '😊', '😄', '🤩'];
+                    const index = Math.min(Math.floor((entry.rating - 1) / (10 / emojis.length)), emojis.length - 1);
+                    
+                    doc.text(`${formatDate(entry.date)}: ${emojis[index]} ${entry.rating}/10`, 20, y);
+                    if (entry.notes) {
+                        doc.text(`Notes: ${entry.notes}`, 30, y + 7);
+                        y += 14;
+                    } else {
+                        y += 7;
+                    }
+                    
+                    if (y > 270) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                });
+            }
+            
+            // Add journal entries if available
+            const journalEntries = getJournalEntries().filter(j => j.patientId === patientId);
+            if (journalEntries.length > 0) {
+                doc.addPage();
+                doc.setFont(undefined, 'bold');
+                doc.text('Journal Entries:', 14, 20);
+                doc.setFont(undefined, 'normal');
+                
+                let y = 30;
+                journalEntries.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(entry => {
+                    doc.text(`${formatDate(entry.date)}:`, 20, y);
+                    const splitText = doc.splitTextToSize(entry.text, 170);
+                    doc.text(splitText, 30, y + 7);
+                    y += 7 + (splitText.length * 7);
+                    
+                    if (entry.tags && entry.tags.length > 0) {
+                        doc.text(`Tags: ${entry.tags.join(', ')}`, 30, y);
+                        y += 7;
+                    }
+                    
+                    if (y > 270) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                });
+            }
+            
+            // Add activity logs if available
+            const activityLogs = getActivityLogs().filter(a => a.patientId === patientId);
+            if (activityLogs.length > 0) {
+                doc.addPage();
+                doc.setFont(undefined, 'bold');
+                doc.text('Activity Logs:', 14, 20);
+                doc.setFont(undefined, 'normal');
+                
+                let y = 30;
+                activityLogs.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(log => {
+                    const activityNames = log.activityIds.map(id => {
+                        const activity = ACTIVITIES.find(a => a.id === id);
+                        return activity ? activity.name : 'Unknown';
+                    });
+                    
+                    doc.text(`${formatDate(log.date)}: ${activityNames.join(', ')}`, 20, y);
+                    if (log.notes) {
+                        doc.text(`Notes: ${log.notes}`, 30, y + 7);
+                        y += 14;
+                    } else {
+                        y += 7;
+                    }
+                    
+                    if (y > 270) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                });
+            }
+            
+            // Add food entries if available
+            const foodEntries = getFoodEntries().filter(f => f.patientId === patientId);
+            if (foodEntries.length > 0) {
+                doc.addPage();
+                doc.setFont(undefined, 'bold');
+                doc.text('Food Tracking:', 14, 20);
+                doc.setFont(undefined, 'normal');
+                
+                let y = 30;
+                foodEntries.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(entry => {
+                    doc.text(`${formatDate(entry.date)}:`, 20, y);
+                    if (entry.breakfast) doc.text(`Breakfast: ${entry.breakfast}`, 30, y + 7);
+                    if (entry.lunch) doc.text(`Lunch: ${entry.lunch}`, 30, y + 14);
+                    if (entry.dinner) doc.text(`Dinner: ${entry.dinner}`, 30, y + 21);
+                    if (entry.snacks) doc.text(`Snacks: ${entry.snacks}`, 30, y + 28);
+                    if (entry.notes) doc.text(`Notes: ${entry.notes}`, 30, y + 35);
+                    
+                    y += 42;
+                    
+                    if (y > 270) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                });
+            }
+            
+            // Save the PDF
+            doc.save(`${patient.name.replace(/\s+/g, '_')}_Report.pdf`);
+            
+            showNotification('Patient report downloaded as PDF!', 'success');
+        }
+
+        // Stats functions
+        function updateDashboardStats() {
+            const patients = getPatients();
+            const moodEntries = getMoodEntries();
+            
+            // Update patient counts
+            document.getElementById('totalPatients').textContent = patients.length;
+            document.getElementById('activePatients').textContent = patients.length; // For simplicity, all patients are considered active
+            
+            // Update average mood
+            if (moodEntries.length > 0) {
+                const total = moodEntries.reduce((sum, entry) => sum + entry.rating, 0);
+                const avg = (total / moodEntries.length).toFixed(1);
+                document.getElementById('avgMood').textContent = avg;
+            } else {
+                document.getElementById('avgMood').textContent = '0';
+            }
+            
+            // Update profile stats
+            document.getElementById('profilePatientCount').textContent = patients.length;
+            document.getElementById('profileSessionCount').textContent = moodEntries.length;
+            document.getElementById('profileAvgMood').textContent = moodEntries.length > 0 ? 
+                (moodEntries.reduce((sum, entry) => sum + entry.rating, 0) / moodEntries.length).toFixed(1) : '0';
+            
+            // Update charts
+            updateCharts();
+        }
+
+        function updateCharts() {
+            // Mood Overview Chart
+            const moodCtx = document.getElementById('moodChart').getContext('2d');
+            const moodEntries = getMoodEntries();
+            
+            if (moodChart) {
+                moodChart.destroy();
+            }
+            
+            if (moodEntries.length > 0) {
+                // Group by patient and calculate average mood
+                const patients = getPatients();
+                const patientMoodData = patients.map(patient => {
+                    const patientMoods = moodEntries.filter(entry => entry.patientId === patient.id);
+                    const avgMood = patientMoods.length > 0 ? 
+                        patientMoods.reduce((sum, entry) => sum + entry.rating, 0) / patientMoods.length : 0;
+                    return {
+                        patient: patient.name,
+                        mood: avgMood
+                    };
+                });
+                
+                moodChart = new Chart(moodCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: patientMoodData.map(data => data.patient),
+                        datasets: [{
+                            label: 'Average Mood Score',
+                            data: patientMoodData.map(data => data.mood),
+                            backgroundColor: 'rgba(106, 125, 226, 0.7)',
+                            borderColor: 'rgba(106, 125, 226, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 10,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Average Mood by Patient'
+                            }
+                        }
+                    }
+                });
+            } else {
+                moodChart = new Chart(moodCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['No data yet'],
+                        datasets: [{
+                            label: 'Average Mood Score',
+                            data: [0],
+                            backgroundColor: 'rgba(200, 200, 200, 0.5)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 10
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Average Mood by Patient'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Mood Trend Chart
+            const moodTrendCtx = document.getElementById('moodTrendChart').getContext('2d');
+            
+            if (moodTrendChart) {
+                moodTrendChart.destroy();
+            }
+            
+            if (moodEntries.length > 0) {
+                // Get last 7 days of mood entries
+                const lastWeek = new Date();
+                lastWeek.setDate(lastWeek.getDate() - 7);
+                
+                const recentMoods = moodEntries
+                    .filter(entry => new Date(entry.date) >= lastWeek)
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                // Group by date
+                const moodByDate = {};
+                recentMoods.forEach(entry => {
+                    const date = entry.date;
+                    if (!moodByDate[date]) {
+                        moodByDate[date] = [];
+                    }
+                    moodByDate[date].push(entry.rating);
+                });
+                
+                // Calculate average per date
+                const dates = Object.keys(moodByDate).sort();
+                const avgMoods = dates.map(date => {
+                    const moods = moodByDate[date];
+                    return moods.reduce((sum, rating) => sum + rating, 0) / moods.length;
+                });
+                
+                moodTrendChart = new Chart(moodTrendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: dates.map(date => formatDate(date)),
+                        datasets: [{
+                            label: 'Average Mood',
+                            data: avgMoods,
+                            backgroundColor: 'rgba(106, 125, 226, 0.2)',
+                            borderColor: 'rgba(106, 125, 226, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 10,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Mood Trend (Last 7 Days)'
+                            }
+                        }
+                    }
+                });
+            } else {
+                moodTrendChart = new Chart(moodTrendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['No data yet'],
+                        datasets: [{
+                            label: 'Average Mood',
+                            data: [0],
+                            backgroundColor: 'rgba(200, 200, 200, 0.2)',
+                    borderColor: 'rgba(200, 200, 200, 1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Mood Trend (Last 7 Days)'
+                    }
+                }
+            }
+        });
+    }
+    
+    // Activity Effectiveness Chart
+    const activityCtx = document.getElementById('activityEffectivenessChart').getContext('2d');
+    
+    if (activityEffectivenessChart) {
+        activityEffectivenessChart.destroy();
+    }
+    
+    const activityLogs = getActivityLogs();
+    if (activityLogs.length > 0) {
+        // Calculate average mood per activity
+        const activityMoodData = {};
+        
+        activityLogs.forEach(log => {
+            // Get mood for this day and patient
+            const moodEntry = getMoodEntries().find(m => 
+                m.patientId === log.patientId && m.date === log.date
+            );
+            
+            if (moodEntry) {
+                log.activityIds.forEach(activityId => {
+                    if (!activityMoodData[activityId]) {
+                        activityMoodData[activityId] = [];
+                    }
+                    activityMoodData[activityId].push(moodEntry.rating);
+                });
+            }
+        });
+        
+        // Calculate average mood for each activity
+        const activityAvgMood = {};
+        Object.keys(activityMoodData).forEach(activityId => {
+            const moods = activityMoodData[activityId];
+            activityAvgMood[activityId] = moods.reduce((sum, rating) => sum + rating, 0) / moods.length;
+        });
+        
+        // Get activity names
+        const activityData = [];
+        Object.keys(activityAvgMood).forEach(activityId => {
+            const activity = ACTIVITIES.find(a => a.id === activityId);
+            if (activity) {
+                activityData.push({
+                    name: activity.name,
+                    avgMood: activityAvgMood[activityId]
+                });
+            }
+        });
+        
+        // Sort by average mood (descending)
+        activityData.sort((a, b) => b.avgMood - a.avgMood);
+        
+        activityEffectivenessChart = new Chart(activityCtx, {
+            type: 'bar',
+            data: {
+                labels: activityData.map(a => a.name),
+                datasets: [{
+                    label: 'Average Mood After Activity',
+                    data: activityData.map(a => a.avgMood),
+                    backgroundColor: 'rgba(156, 106, 222, 0.7)',
+                    borderColor: 'rgba(156, 106, 222, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Activity Effectiveness (Higher is Better)'
+                    }
+                }
+            }
+        });
+    } else {
+        activityEffectivenessChart = new Chart(activityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['No data yet'],
+                datasets: [{
+                    label: 'Average Mood After Activity',
+                    data: [0],
+                    backgroundColor: 'rgba(200, 200, 200, 0.5)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Activity Effectiveness (Higher is Better)'
+                    }
+                }
+            }
+        });
+    }
+}
+
+        // Profile functions
+        function loadUserProfile() {
+            const userData = JSON.parse(localStorage.getItem('userProfile')) || {
+                firstName: "Sarah",
+                lastName: "Johnson",
+                email: "sarah.johnson@mindcare.example",
+                phone: "+1 (555) 123-4567",
+                specialization: "Clinical Psychology",
+                experience: "8",
+                bio: "Dedicated mental health professional with a passion for helping patients achieve their wellness goals through personalized care and evidence-based practices.",
+                goals: "Help patients develop healthy coping mechanisms, improve emotional regulation, and build resilience through personalized treatment plans."
+            };
+            
+            // Populate form
+            document.getElementById('userFirstName').value = userData.firstName;
+            document.getElementById('userLastName').value = userData.lastName;
+            document.getElementById('userEmailInput').value = userData.email;
+            document.getElementById('userPhone').value = userData.phone;
+            document.getElementById('userSpecialization').value = userData.specialization;
+            document.getElementById('userExperience').value = userData.experience;
+            document.getElementById('userBio').value = userData.bio;
+            document.getElementById('userGoals').value = userData.goals;
+            
+            // Update displayed info
+            document.getElementById('userName').textContent = `${userData.firstName} ${userData.lastName}`;
+            document.getElementById('userEmail').textContent = userData.email;
+            document.getElementById('headerUserName').textContent = userData.firstName;
+            document.getElementById('headerUserNameShort').textContent = userData.firstName;
+            
+            // Set member since date if not set
+            if (!localStorage.getItem('memberSince')) {
+                localStorage.setItem('memberSince', new Date('2016-05-15').toISOString());
+            }
+            const memberSince = new Date(localStorage.getItem('memberSince'));
+            document.getElementById('memberSinceDate').textContent = memberSince.toLocaleDateString();
+            
+            // Load profile image
+            const savedImage = localStorage.getItem('userProfileImage');
+            if (savedImage) {
+                document.getElementById('userProfileImage').src = savedImage;
+                document.getElementById('headerUserImage').src = savedImage;
+            } else {
+                // Set default profile image
+                const defaultImage = `https://ui-avatars.com/api/?name=${userData.firstName}+${userData.lastName}&background=6a7de2&color=fff`;
+                document.getElementById('userProfileImage').src = defaultImage;
+                document.getElementById('headerUserImage').src = defaultImage;
+            }
+        }
+
+        function resetProfileForm() {
+            loadUserProfile();
+            showNotification('Changes discarded.', 'info');
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.main-content > div[id$="-section"]');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // Update active menu item
+            const menuItems = document.querySelectorAll('.sidebar-menu a');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the corresponding menu item
+            const menuText = sectionId.replace('-section', '').replace('-', ' ');
+            menuItems.forEach(item => {
+                if (item.textContent.trim().toLowerCase().includes(menuText)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // If showing patients section, render patients
+            if (sectionId === 'patients-section') {
+                renderPatients();
+            }
+            
+            // If showing dashboard, update stats
+            if (sectionId === 'dashboard-section') {
+                updateDashboardStats();
+            }
+            
+            // If showing analytics, update charts
+            if (sectionId === 'analytics-section') {
+                updateCharts();
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function loadHistory() {
+            const patientId = document.getElementById('historyPatient').value;
+            const type = document.getElementById('historyType').value;
+            const range = document.getElementById('historyRange').value;
+            
+            if (tableView.style.display === 'block') {
+                renderHistoryTable(type, range, patientId);
+            } else {
+                renderHistoryCards(type, range, patientId);
+            }
+        }
+
+        function toggleHistoryView(viewType) {
+            if (viewType === 'table') {
+                tableView.style.display = 'block';
+                cardsView.style.display = 'none';
+                tableViewBtn.classList.add('active');
+                cardsViewBtn.classList.remove('active');
+            } else {
+                tableView.style.display = 'none';
+                cardsView.style.display = 'grid';
+                tableViewBtn.classList.remove('active');
+                cardsViewBtn.classList.add('active');
+            }
+            
+            loadHistory();
+        }
+
+        function logout() {
+            // Show login page and hide dashboard
+            loginPage.style.display = 'flex';
+            dashboard.style.display = 'none';
+            showNotification('Logged out successfully!', 'success');
+        }
+
+        function showNotification(message, type) {
+            // Remove any existing notifications
+            document.querySelectorAll('.notification').forEach(notification => {
+                notification.remove();
+            });
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                ${message}
+                <button onclick="this.parentElement.remove()">×</button>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        function showRegisterForm() {
+            alert("Registration functionality would be implemented here. For this demo, use username: 'user' and password: 'password123'");
+        }
+
+        // Initialize dashboard after login
+        function onLoginSuccess() {
+            renderPatients();
+            updateDashboardStats();
+            loadUserProfile();
+            
+            // Set default dates for custom filter
+            const today = new Date();
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(today.getDate() - 7);
+            
+            document.getElementById('customDateFrom').value = oneWeekAgo.toISOString().split('T')[0];
+            document.getElementById('customDateTo').value = today.toISOString().split('T')[0];
+        }
+    </script>
+</body>
+</html>
